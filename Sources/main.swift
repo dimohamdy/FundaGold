@@ -1,0 +1,127 @@
+import Foundation
+#if canImport(FoundationNetworking)
+import FoundationNetworking
+#endif
+
+let botToken = ProcessInfo.processInfo.environment["BOT_TOKEN"] ?? "defaultToken"
+
+// FundaGold
+
+class Main {
+
+    private var searchTasks: [Int: FundaTask] = [:]
+
+    private var timer: Timer!
+
+    // Define the Telegram API endpoint for long polling updates
+    private let apiUrl = "https://api.telegram.org/bot\(botToken)/getUpdates"
+    private let notifier = TelegramNotifier()
+    private var lastUpdateID: Int?
+
+    let logger: LoggerProtocol
+
+    init(logger: LoggerProtocol) {
+        logger.log("BOT_TOKEN \(ProcessInfo.processInfo.environment["BOT_TOKEN"])", level: .info)
+        logger.log("apiUrl \(apiUrl)", level: .info)
+
+        self.logger = logger
+        self.timer = Timer.scheduledTimer(withTimeInterval: Double.random(in: 5.0...7.0) * 60, repeats: true) { [weak self] _ in
+
+            self?.searchTasks.values.forEach { task in
+                task.run()
+            }
+        }
+    }
+
+    private func replay(chatID: String, message: String) async {
+        // Handle the incoming message and generate a response
+        do {
+            try await notifier.notifyUser(chatID: chatID, message: message)
+        } catch {
+            logger.log(error.localizedDescription, level: .error)
+        }
+    }
+
+    func pollMessagesFromTelegram() async {
+        do {
+            guard let url = createURL() else { return }
+            let (data, _) = try await fetchData(url: url)
+            let messages = try parseMessages(from: data)
+            guard !messages.isEmpty else {
+                await sleepAndRetry()
+                return
+            }
+
+            for message in messages {
+                try await handleMessage(message)
+            }
+        } catch {
+            logger.log(error.localizedDescription, level: .error)
+            await sleepAndRetry()
+        }
+    }
+
+    func createURL() -> URL? {
+        guard var urlComponents = URLComponents(string: apiUrl) else {
+            logger.log("Invalid API URL", level: .error)
+            return nil
+        }
+
+        if let lastID = lastUpdateID {
+            urlComponents.queryItems = [URLQueryItem(name: "offset", value: String(lastID + 1))]
+        }
+
+        return urlComponents.url
+    }
+
+    func fetchData(url: URL) async throws -> (Data, URLResponse) {
+        var request = URLRequest(url: url)
+        #if canImport(FoundationNetworking)
+            return try await FoundationNetworking.URLSession.shared.fetchData(for: request)
+        #else
+            return try await URLSession.shared.data(for: request)
+        #endif
+    }
+
+    func parseMessages(from data: Data) throws -> [TelegramMessage] {
+        let str = String(decoding: data, as: UTF8.self)
+        logger.log("JSON \(str)", level: .error)
+
+        let decoder = JSONDecoder()
+        let response = try decoder.decode(TelegramResponse<[TelegramMessage]>.self, from: data)
+        return response.ok ? response.result ?? [] : []
+    }
+
+    func handleMessage(_ message: TelegramMessage) async throws {
+        guard let chatID = message.message?.chat.id, let text = message.message?.text else { return }
+        let updateID = message.update_id
+        lastUpdateID = updateID
+
+        guard let config = try? SearchConfig.loadParameters(configString: text) else {
+            await replay(chatID: "\(chatID)", message: "Wrong Config, Please try again, if you need a help message @dimohamdy")
+            await sleepAndRetry()
+            return
+        }
+
+        let fundaTask = searchTasks[chatID] ?? FundaTask(chatID: "\(chatID)", searchConfig: config, logger: ProxyLogger(category: "FundaTask"))
+        fundaTask.searchConfig = config
+        await replay(chatID: fundaTask.chatID, message: "🔔 We'll keep you posted on the latest property listings.")
+        searchTasks[chatID] = fundaTask
+        await sleepAndRetry()
+    }
+
+    func sleepAndRetry() async {
+        try? await Task.sleep(nanoseconds: 1_000_000_000) // Sleep for 1 second
+        await pollMessagesFromTelegram()
+    }
+
+}
+
+let main =  Main(logger: ProxyLogger(category: "Main"))
+
+// Start listening for messages within the current RunLoop
+Task {
+    await main.pollMessagesFromTelegram()
+}
+
+RunLoop.current.run()

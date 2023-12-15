@@ -1,0 +1,32 @@
+name: Publish Docker Image
+
+on:
+  push:
+    branches:
+      - main
+      - master
+
+jobs:
+  build-and-publish:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v2
+
+      - name: Set Docker Image Name
+        run: echo "DOCKER_IMAGE_NAME=fundagold-swift-image" >> $GITHUB_ENV
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Build and Push Docker Image
+        run: |
+          docker build --build-arg BOT_TOKEN=${{ secrets.BOT_TOKEN }} -t $DOCKER_IMAGE_NAME .
+          docker tag $DOCKER_IMAGE_NAME:latest ${{ secrets.DOCKER_USERNAME }}/$DOCKER_IMAGE_NAME:latest
+          docker push ${{ secrets.DOCKER_USERNAME }}/$DOCKER_IMAGE_NAME:latest
+        env:
+          BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
