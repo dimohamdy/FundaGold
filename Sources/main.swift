@@ -21,8 +21,8 @@ class Main {
     let logger: LoggerProtocol
 
     init(logger: LoggerProtocol) {
-        logger.log("BOT_TOKEN \(ProcessInfo.processInfo.environment["BOT_TOKEN"])", level: .info)
-        logger.log("apiUrl \(apiUrl)", level: .info)
+        logger.log("BOT_TOKEN \(ProcessInfo.processInfo.environment["BOT_TOKEN"])", level: .debug)
+        logger.log("apiUrl \(apiUrl)", level: .debug)
 
         self.logger = logger
         self.timer = Timer.scheduledTimer(withTimeInterval: Double.random(in: 5.0...7.0) * 60, repeats: true) { [weak self] _ in
@@ -85,7 +85,7 @@ class Main {
 
     func parseMessages(from data: Data) throws -> [TelegramMessage] {
         let str = String(decoding: data, as: UTF8.self)
-        logger.log("JSON \(str)", level: .error)
+        logger.log("JSON \(str)", level: .debug)
 
         let decoder = JSONDecoder()
         let response = try decoder.decode(TelegramResponse<[TelegramMessage]>.self, from: data)
@@ -111,7 +111,7 @@ class Main {
     }
 
     func sleepAndRetry() async {
-        try? await Task.sleep(nanoseconds: 1_000_000_000) // Sleep for 1 second
+        try? await Task.sleep(nanoseconds: 2_000_000_000) // Sleep for 1 second
         await pollMessagesFromTelegram()
     }
 
