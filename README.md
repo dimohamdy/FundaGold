@@ -21,8 +21,7 @@ Users need to send a message in the following JSON format:
     "availability": "available",
     "bedrooms": "2",
     "objectType": "apartment",
-    "publicationDate": "1",
-    "vestedaURL": "https://www.vesteda.com/nl/woning-zoeken?placeType=1&sortType=1&radius=5&s=Utrecht,%20Nederland&sc=woning&latitude=52.090736&longitude=5.12142&filters=0&priceFrom=500&priceTo=2000"
+    "publicationDate": "1"
 }
 ```
 
@@ -35,7 +34,6 @@ Users need to send a message in the following JSON format:
 - `bedrooms`: Number of bedrooms required.
 - `objectType`: Type of rental object (e.g., "apartment").
 - `publicationDate`: Publication date range (in days).
-- `vestedaURL`: Direct URL for specific queries on Vesteda.
 
 ## Supported Websites
 The bot currently aggregates data from the following websites, with more to be added:
@@ -44,6 +42,7 @@ The bot currently aggregates data from the following websites, with more to be a
 - **Ikwilhuren**: [www.ikwilhuren.nu](https://ikwilhuren.nu)
 - **Pararius**: [www.pararius.nl](http://www.pararius.nl)
 - **Vesteda**: [www.vesteda.com](http://www.vesteda.com)
+- **Huurwoningen**: [www.huurwoningen.nl](http://www.huurwoningen.nl)
 - **Wonenbijbouwinvest**: [www.wonenbijbouwinvest.nl](http://www.wonenbijbouwinvest.nl)
 
 ## Usage Instructions
