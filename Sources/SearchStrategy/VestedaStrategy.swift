@@ -33,19 +33,17 @@ class VestedaStrategy: SearchStrategy {
 
     func search(fundaTask: FundaTask) async throws {
         let config = fundaTask.searchConfig
-        guard let json = mapURLtoJSON(config.vestedaURL) else {
-            return
-        }
+
         config.selectedAreas.forEach { area in
             Task {
-                var httpBody = json
-                httpBody["place"] = area
+                guard let httpBody = try? mapTaskToJSON(cityName: area, fundaTask: fundaTask) else {
+                    return
+                }
                 // Call the async function to fetch data
                 await fetchData(fundaTask: fundaTask, httpBody: httpBody)
 
             }
         }
-
     }
 
     // Create an async function to perform the network request
@@ -65,9 +63,9 @@ class VestedaStrategy: SearchStrategy {
 
             // Send the request and wait for the response
             #if canImport(FoundationNetworking)
-                    let (data, _) = try await FoundationNetworking.URLSession.shared.fetchData(for: request)
+                        let (data, _) = try await FoundationNetworking.URLSession.shared.fetchData(for: request)
             #else
-                    let (data, _) = try await URLSession.shared.data(for: request)
+                        let (data, _) = try await URLSession.shared.data(for: request)
 
             #endif
             // Parse the JSON response using Codable
@@ -90,58 +88,35 @@ class VestedaStrategy: SearchStrategy {
         }
     }
 
-    private func mapURLtoJSON(_ urlString: String) -> [String: Any]? {
-        // Parse the URL
-        if let url = URL(string: urlString), let components = URLComponents(url: url, resolvingAgainstBaseURL: false) {
-            // Extract query parameters
-            var queryItems = [String: String]()
-            if let items = components.queryItems {
-                for item in items {
-                    if let value = item.value {
-                        queryItems[item.name] = value
-                    }
-                }
-            }
+    private func mapTaskToJSON(cityName: String, fundaTask: FundaTask) throws -> [String: Any]? {
+        // https://www.vesteda.com/nl/woning-zoeken?placeType=1&sortType=1&radius=5&s=Utrecht,%20Nederland&sc=woning&latitude=52.090736&longitude=5.12142&filters=0&priceFrom=500&priceTo=2000
 
-            // Extract specific values
-            let filtersString = queryItems["filters"] ?? ""
-            let latitudeString = queryItems["latitude"] ?? ""
-            let longitudeString = queryItems["longitude"] ?? ""
-            let placeString = queryItems["s"] ?? ""
-            let placeTypeString = queryItems["placeType"] ?? ""
-            let radiusString = queryItems["radius"] ?? ""
-            let priceFromString = queryItems["priceFrom"] ?? ""
-            let priceToString = queryItems["priceTo"] ?? ""
+        guard let city = searchFor(cityName: cityName) else { throw FundaGoldError.jsonParsingFailed  }
 
-            let filters = filtersString.components(separatedBy: ",").compactMap { Int($0) }
-            let latitude = Double(latitudeString) ?? 0.0
-            let longitude = Double(longitudeString) ?? 0.0
-            let placeType = Int(placeTypeString) ?? 0
-            let radius = Int(radiusString) ?? 0
-            let sorting = 0
-            let priceFrom = Int(priceFromString) ?? 0
-            let priceTo = Int(priceToString) ?? 0
+        // Extract specific values
+        let filters = [0]
+        let place = city.city
+        let latitude = Double(city.lat) ?? 0.0
+        let longitude = Double(city.lng) ?? 0.0
+        let placeType = 1
+        let radius = 5
+        let sorting = 0
+        let priceFrom = 0
+        let priceTo = Int(fundaTask.searchConfig.price) ?? 0
 
-            let placeComponents = placeString.components(separatedBy: ",")
-            let place = placeComponents.first ?? ""
-
-            // Create the JSON object
-            let jsonObject: [String: Any] = [
-                "filters": filters,
-                "latitude": latitude,
-                "longitude": longitude,
-                "place": place,
-                "placeType": placeType,
-                "radius": radius,
-                "sorting": sorting,
-                "priceFrom": priceFrom,
-                "priceTo": priceTo,
-                "language": "en"
-            ]
-            return jsonObject
-        }
-
-        return nil
+        // Create the JSON object
+        let jsonObject: [String: Any] = [
+            "filters": filters,
+            "latitude": latitude,
+            "longitude": longitude,
+            "place": place,
+            "placeType": placeType,
+            "radius": radius,
+            "sorting": sorting,
+            "priceFrom": priceFrom,
+            "priceTo": priceTo,
+            "language": "en"
+        ]
+        return jsonObject
     }
-
 }

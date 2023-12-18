@@ -15,7 +15,6 @@ struct SearchConfig: Decodable {
     let bedrooms: String
     let objectType: String
     let publicationDate: String
-    let vestedaURL: String
 
     static func loadParameters(configString: String) throws -> SearchConfig {
         let data = Data(configString.utf8)

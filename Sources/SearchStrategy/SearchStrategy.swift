@@ -14,7 +14,7 @@ import FoundationNetworking
 let telegram = TelegramNotifier()
 
 protocol SearchStrategy {
-    var logger: LoggerProtocol { set get }
+    var logger: LoggerProtocol { get set }
     func search(fundaTask: FundaTask) async throws
 }
 
@@ -77,6 +77,30 @@ extension SearchStrategy {
                     logger.log("Error sending to Telegram: \(error)", level: .error)
                 }
             }
+        }
+    }
+
+    // Function to load cities from a JSON file
+    func loadCitiesFromJSONFile() -> [City] {
+        guard let jsonFileURL = Bundle.module.url(forResource: "netherlands_cities", withExtension: "json") else {
+            logger.log("netherlands_cities JSON file not found", level: .error)
+            return []
+        }
+        do {
+            let data = try Data(contentsOf: jsonFileURL)
+            let decoder = JSONDecoder()
+            let cities = try decoder.decode([City].self, from: data)
+            return cities
+        } catch {
+            logger.log("Error loading or decoding JSON: \(error)", level: .error)
+        }
+        return []
+    }
+
+    func searchFor(cityName: String) -> City? {
+        let cities =  loadCitiesFromJSONFile()
+        return cities.first { city in
+            city.city.lowercased() == cityName.lowercased()
         }
     }
 }

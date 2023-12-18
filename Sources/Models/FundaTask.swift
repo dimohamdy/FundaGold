@@ -10,7 +10,12 @@ import Foundation
 import FoundationNetworking
 #endif
 
-let searchStrategies: [SearchStrategy] = [FundaSearchStrategy(), ParariusSearchStrategy(), WonenbijbouwinvestStrategy(), VestedaStrategy(), IkwilhurenStrategy()]
+let searchStrategies: [SearchStrategy] = [FundaSearchStrategy(),
+                                          ParariusSearchStrategy(),
+                                          WonenbijbouwinvestStrategy(),
+                                          VestedaStrategy(),
+                                          IkwilhurenStrategy(),
+                                          HuurwoningenStrategy()]
 
 class FundaTask {
     let chatID: String
@@ -34,6 +39,7 @@ class FundaTask {
 
     func save(link: String) {
         linkStorage.saveLink(chatID: chatID, link: link)
+        propertyLinks.insert(link)
     }
 
     func run() {
