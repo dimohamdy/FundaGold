@@ -21,13 +21,13 @@ class HuurwoningenStrategy: SearchStrategy {
        // "https://www.huurwoningen.nl/in/hilversum/? =0-1300&living_size=75&bedrooms=1"
 
         var linksForCities: [URL] = []
-        config.selectedAreas.forEach { area in
+        config.selectedCities.forEach { area in
 
             var urlComponents = URLComponents(string: "https://www.huurwoningen.nl/in/\(area)")!
             urlComponents.queryItems = [
-                URLQueryItem(name: "price", value: "0-\(config.price)"),
+                URLQueryItem(name: "price", value: "0-\(config.maxRentAmount)"),
                 URLQueryItem(name: "bedrooms", value: "\(config.bedrooms)"),
-                URLQueryItem(name: "living_size", value: "\(config.floorArea)")
+                URLQueryItem(name: "living_size", value: "\(config.minFloorArea)")
             ]
 
             guard let url = urlComponents.url else {

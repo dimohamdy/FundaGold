@@ -1,5 +1,5 @@
 //
-//  LinkStorage.swift
+//  LinkStorageRepository.swift
 //  FundaGold
 //
 //  Created by BinaryBoy on 12/9/23.

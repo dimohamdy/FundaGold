@@ -21,13 +21,13 @@ struct ParariusSearchStrategy: SearchStrategy {
         let config = fundaTask.searchConfig
 
         var linksForCities: [URL] = []
-        config.selectedAreas.forEach { area in
+        config.selectedCities.forEach { area in
             // Construct the URL with query parameters
             let baseURL = "https://www.pararius.nl/huurwoningen"
             // Query parameters
-            let priceRange = "0-\(config.price)"
+            let priceRange = "0-\(config.maxRentAmount)"
             let bedrooms = "\(config.bedrooms)-slaapkamers"
-            let floorArea = "\(config.floorArea)m2"
+            let floorArea = "\(config.minFloorArea)m2"
 
             // Construct the path with query parameters
             let path = "/\(area.lowercased())/\(priceRange)/\(bedrooms)/\(floorArea)/sinds-1"

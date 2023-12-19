@@ -7,14 +7,28 @@
 
 import Foundation
 
+/* User should send JSON look like this.
+ {
+     "selectedCities": [
+         "Amsterdam", "Utrecht", "Amersfoort", "Nieuwegein", "Houten" , "Bussum"
+     ],
+     "maxRentAmount": "1500",
+     "minFloorArea": "100",
+     "availability": "available",
+     "bedrooms": "2",
+     "objectType": "apartment",
+     "publicationSinceDays": "1"
+ }
+ */
+
 struct SearchConfig: Decodable {
-    let selectedAreas: [String]
-    let price: String
-    let floorArea: String
+    let selectedCities: [String]
+    let maxRentAmount: String
+    let minFloorArea: String
     let availability: String
     let bedrooms: String
     let objectType: String
-    let publicationDate: String
+    let publicationSinceDays: String
 
     static func loadParameters(configString: String) throws -> SearchConfig {
         let data = Data(configString.utf8)

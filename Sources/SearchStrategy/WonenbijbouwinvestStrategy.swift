@@ -33,12 +33,12 @@ struct WonenbijbouwinvestStrategy: SearchStrategy {
         let config = fundaTask.searchConfig
 
         var linksForCities: [URL] = []
-        config.selectedAreas.forEach { area in
+        config.selectedCities.forEach { area in
 
             var urlComponents = URLComponents(string: "https://www.wonenbijbouwinvest.nl/api/search")!
             urlComponents.queryItems = [
                 URLQueryItem(name: "query", value: area),
-                URLQueryItem(name: "price", value: "0-\(config.price)"),
+                URLQueryItem(name: "price", value: "0-\(config.maxRentAmount)"),
                 URLQueryItem(name: "page", value: "1"),
                 URLQueryItem(name: "range", value: "5"),
                 URLQueryItem(name: "seniorservice", value: "false"),
@@ -46,7 +46,7 @@ struct WonenbijbouwinvestStrategy: SearchStrategy {
                 URLQueryItem(name: "propertyToggle", value: "false"),
                 URLQueryItem(name: "sleepingrooms", value: "\(config.bedrooms)"),
                 URLQueryItem(name: "type", value: "appartement"),
-                URLQueryItem(name: "surface", value: "lte-\(config.floorArea)")
+                URLQueryItem(name: "surface", value: "lte-\(config.minFloorArea)")
             ]
 
             guard let url = urlComponents.url else {
@@ -69,12 +69,8 @@ struct WonenbijbouwinvestStrategy: SearchStrategy {
                 request.setValue(getRandomUserAgent(), forHTTPHeaderField: "User-Agent")
 
                 // Perform the HTTP GET request using async/await
-                #if canImport(FoundationNetworking)
-                        let (data, _) = try await FoundationNetworking.URLSession.shared.fetchData(for: request)
-                #else
-                        let (data, _) = try await URLSession.shared.data(for: request)
+                let (data, _) = try await URLSession.shared.data(with: request)
 
-                #endif
                 // Parse the JSON data into a Property array
                 let responseData = try JSONDecoder().decode(ResponseData.self, from: data)
 

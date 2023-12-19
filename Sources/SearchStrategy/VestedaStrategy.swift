@@ -34,7 +34,7 @@ class VestedaStrategy: SearchStrategy {
     func search(fundaTask: FundaTask) async throws {
         let config = fundaTask.searchConfig
 
-        config.selectedAreas.forEach { area in
+        config.selectedCities.forEach { area in
             Task {
                 guard let httpBody = try? mapTaskToJSON(cityName: area, fundaTask: fundaTask) else {
                     return
@@ -62,12 +62,8 @@ class VestedaStrategy: SearchStrategy {
         do {
 
             // Send the request and wait for the response
-            #if canImport(FoundationNetworking)
-                        let (data, _) = try await FoundationNetworking.URLSession.shared.fetchData(for: request)
-            #else
-                        let (data, _) = try await URLSession.shared.data(for: request)
+            let (data, _) = try await URLSession.shared.data(with: request)
 
-            #endif
             // Parse the JSON response using Codable
             let decoder = JSONDecoder()
             let results = try decoder.decode(Results.self, from: data)
@@ -89,7 +85,8 @@ class VestedaStrategy: SearchStrategy {
     }
 
     private func mapTaskToJSON(cityName: String, fundaTask: FundaTask) throws -> [String: Any]? {
-        // https://www.vesteda.com/nl/woning-zoeken?placeType=1&sortType=1&radius=5&s=Utrecht,%20Nederland&sc=woning&latitude=52.090736&longitude=5.12142&filters=0&priceFrom=500&priceTo=2000
+
+        //https://www.vesteda.com/nl/woning-zoeken?placeType=1&sortType=1&radius=5&s=Utrecht,%20Nederland&sc=woning&latitude=52.090736&longitude=5.12142&filters=0&priceFrom=500&priceTo=2000
 
         guard let city = searchFor(cityName: cityName) else { throw FundaGoldError.jsonParsingFailed  }
 
@@ -102,7 +99,7 @@ class VestedaStrategy: SearchStrategy {
         let radius = 5
         let sorting = 0
         let priceFrom = 0
-        let priceTo = Int(fundaTask.searchConfig.price) ?? 0
+        let priceTo = Int(fundaTask.searchConfig.maxRentAmount) ?? 0
 
         // Create the JSON object
         let jsonObject: [String: Any] = [

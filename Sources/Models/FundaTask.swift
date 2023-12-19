@@ -18,12 +18,13 @@ let searchStrategies: [SearchStrategy] = [FundaSearchStrategy(),
                                           HuurwoningenStrategy()]
 
 class FundaTask {
+    // User can change the search config
+    var searchConfig: SearchConfig
     let chatID: String
+
     private var propertyLinks: Set<String> = Set([])
     private var linkStorage: LinkStorageRepository
-
-    var searchConfig: SearchConfig
-    let logger: LoggerProtocol
+    private let logger: LoggerProtocol
 
     init(chatID: String, searchConfig: SearchConfig, linkStorage: LinkStorageRepository = UserDefaultsLinkStorage(), logger: LoggerProtocol) {
         self.chatID = chatID
@@ -66,5 +67,4 @@ class FundaTask {
             }
         }
     }
-
 }

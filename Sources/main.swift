@@ -75,12 +75,8 @@ class Main {
     }
 
     func fetchData(url: URL) async throws -> (Data, URLResponse) {
-        var request = URLRequest(url: url)
-        #if canImport(FoundationNetworking)
-            return try await FoundationNetworking.URLSession.shared.fetchData(for: request)
-        #else
-            return try await URLSession.shared.data(for: request)
-        #endif
+        let request = URLRequest(url: url)
+        return try await URLSession.shared.data(with: request)
     }
 
     func parseMessages(from data: Data) throws -> [TelegramMessage] {
@@ -111,7 +107,7 @@ class Main {
     }
 
     func sleepAndRetry() async {
-        try? await Task.sleep(nanoseconds: 2_000_000_000) // Sleep for 1 second
+        try? await Task.sleep(nanoseconds: 2_000_000_000) // Sleep for 2 second
         await pollMessagesFromTelegram()
     }
 

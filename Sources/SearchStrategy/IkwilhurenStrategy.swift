@@ -27,16 +27,12 @@ class IkwilhurenStrategy: SearchStrategy {
 
     // Define a function to send the initial request and retrieve cookies
     func sendInitialRequest() async throws {
-        let initialURL = URL(string: "https://ikwilhuren.nu/aanbod")!
-        let initialRequest = URLRequest(url: initialURL)
+        let url = URL(string: "https://ikwilhuren.nu/aanbod")!
+        let request = URLRequest(url: url)
 
-        #if canImport(FoundationNetworking)
-                let (data, _) = try await FoundationNetworking.URLSession.shared.fetchData(for: initialRequest)
-        #else
-                let (data, _) = try await URLSession.shared.data(for: initialRequest)
+        let (data, _) = try await URLSession.shared.data(with: request)
 
-        #endif
-        if let cookies = URLSession.shared.configuration.httpCookieStorage?.cookies(for: initialURL) {
+        if let cookies = URLSession.shared.configuration.httpCookieStorage?.cookies(for: url) {
             self.cookies = cookies
         }
 
@@ -61,14 +57,13 @@ class IkwilhurenStrategy: SearchStrategy {
         let config = fundaTask.searchConfig
         try await sendInitialRequest()
 
-        config.selectedAreas.forEach { city in
+        config.selectedCities.forEach { city in
             Task {
                 if let city =  searchFor(cityName: city) {
                     try await run(city: city, fundaTask: fundaTask)
                 }
             }
         }
-
     }
 
     @Sendable func run(city: City, fundaTask: FundaTask) async throws {
@@ -85,9 +80,9 @@ class IkwilhurenStrategy: SearchStrategy {
             "selAfstand": "10",
             "csrf": csrf,
             "selPrijsVan": "0",
-            "selPrijsTot": "\(config.price)",
+            "selPrijsTot": "\(config.maxRentAmount)",
             "selWoonoppervlakteVan": "0",
-            "selWoonoppervlakteTot": "\(config.floorArea)",
+            "selWoonoppervlakteTot": "\(config.minFloorArea)",
             "selWoninghoofdtypeId": "2",
             "selSlaapkamersVan": "\(config.bedrooms)"
         ]

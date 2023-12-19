@@ -21,13 +21,13 @@ struct FundaSearchStrategy: SearchStrategy {
         // Construct the URL with query parameters
         var urlComponents = URLComponents(string: "https://www.funda.nl/zoeken/huur")!
         urlComponents.queryItems = [
-            URLQueryItem(name: "selected_area", value: config.selectedAreas.map { "\"\($0.lowercased())\"" }.joined(separator: ",")),
-            URLQueryItem(name: "price", value: "\"-\(config.price)\""),
-            URLQueryItem(name: "floor_area", value: "\"-\(config.floorArea)\""),
+            URLQueryItem(name: "selected_area", value: config.selectedCities.map { "\"\($0.lowercased())\"" }.joined(separator: ",")),
+            URLQueryItem(name: "price", value: "\"-\(config.maxRentAmount)\""),
+            URLQueryItem(name: "floor_area", value: "\"\(config.minFloorArea)-\""),
             URLQueryItem(name: "availability", value: "[\"\(config.availability)\"]"),
             URLQueryItem(name: "bedrooms", value: "\"-\(config.bedrooms)\""),
             URLQueryItem(name: "object_type", value: "[\"\(config.objectType)\"]"),
-            URLQueryItem(name: "publication_date", value: "\"\(config.publicationDate)\"")
+            URLQueryItem(name: "publication_date", value: "\"\(config.publicationSinceDays)\"")
         ]
 
         guard let url = urlComponents.url else {
@@ -43,12 +43,15 @@ struct FundaSearchStrategy: SearchStrategy {
 
             // Find the script element with type="application/ld+json"
             let scriptElement = try doc.select("script[type=application/ld+json]").first()
-            if let scriptData = scriptElement?.data() {
-                let jsonObject = try parseJSON(from: scriptData)
-                let propertyURLs = extractPropertyURLs(from: jsonObject)
-
-                await sendLinks(fundaTask: fundaTask, propertyURLs: propertyURLs)
+            guard let scriptData = scriptElement?.data() else {
+                return
             }
+
+            let jsonObject = try parseJSON(from: scriptData)
+            let propertyURLs = extractPropertyURLs(from: jsonObject)
+
+            await sendLinks(fundaTask: fundaTask, propertyURLs: propertyURLs)
+
         } catch {
             logger.log(error.localizedDescription, level: .error)
         }

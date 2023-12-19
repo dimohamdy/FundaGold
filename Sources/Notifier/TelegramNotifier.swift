@@ -37,12 +37,7 @@ class TelegramNotifier: Notifier {
         request.httpMethod = "POST"
 
         // Send the request
-        #if canImport(FoundationNetworking)
-                let (_, _) = try await FoundationNetworking.URLSession.shared.fetchData(for: request)
-        #else
-                let (_, _) = try await URLSession.shared.data(for: request)
-
-        #endif
+        let (_, _) = try await URLSession.shared.data(with: request)
 
     }
 }
