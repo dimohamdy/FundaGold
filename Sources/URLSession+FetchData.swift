@@ -12,12 +12,12 @@ import FoundationNetworking
 extension URLSession {
     func fetchData(for request: URLRequest) async throws -> (Data, URLResponse) {
         return await withCheckedContinuation { continuation in
-            self.dataTask(with: request) { data, response, _ in
+            self.dataTask(with: request) { data, response, error in
                 if let data = data, let response = response {
                     continuation.resume(returning: (data, response))
                 } else {
                     // Handle unexpected case
-                    fatalError("Unexpected result from dataTask")
+                    throw error
                 }
             }.resume()
         }
