@@ -11,7 +11,7 @@ import FoundationNetworking
 
 extension URLSession {
     func fetchData(for request: URLRequest) async throws -> (Data, URLResponse) {
-        return await withCheckedContinuation { continuation in
+        return try await withCheckedThrowingContinuation { continuation in
             self.dataTask(with: request) { data, response, error in
                 if let data = data, let response = response {
                     continuation.resume(returning: (data, response))
