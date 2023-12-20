@@ -17,7 +17,7 @@ extension URLSession {
                     continuation.resume(returning: (data, response))
                 } else {
                     // Handle unexpected case
-                    throw error
+                    continuation.resume(throwing: error)
                 }
             }.resume()
         }
