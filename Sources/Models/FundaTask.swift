@@ -43,6 +43,10 @@ class FundaTask {
         propertyLinks.insert(link)
     }
 
+    func clearPropertyLinks() {
+        propertyLinks.removeAll()
+    }
+
     func run() {
         DispatchQueue.main.asyncAfter(deadline: .now() + Double.random(in: 5.0...10.0) * 60) { [weak self] in
             guard let self else {

@@ -5,8 +5,6 @@ import FoundationNetworking
 
 let botToken = ProcessInfo.processInfo.environment["BOT_TOKEN"] ?? "defaultToken"
 
-// FundaGold
-
 class Main {
 
     private var searchTasks: [Int: FundaTask] = [:]
@@ -19,12 +17,14 @@ class Main {
     private var lastUpdateID: Int?
 
     let logger: LoggerProtocol
+    let storageRepository: LinkStorageRepository
 
-    init(logger: LoggerProtocol) {
+    init(logger: LoggerProtocol, storageRepository: LinkStorageRepository) {
         logger.log("BOT_TOKEN \(ProcessInfo.processInfo.environment["BOT_TOKEN"])", level: .debug)
         logger.log("apiUrl \(apiUrl)", level: .debug)
 
         self.logger = logger
+        self.storageRepository = storageRepository
         self.timer = Timer.scheduledTimer(withTimeInterval: Double.random(in: 5.0...7.0) * 60, repeats: true) { [weak self] _ in
 
             self?.searchTasks.values.forEach { task in
@@ -93,6 +93,14 @@ class Main {
         let updateID = message.update_id
         lastUpdateID = updateID
 
+        if text.lowercased() == "clear"  {
+            storageRepository.clearData(forChatID: "\(chatID)")
+            searchTasks[chatID]?.clearPropertyLinks()
+            await replay(chatID: "\(chatID)", message: "Clear Done ✅")
+            await sleepAndRetry()
+            return
+        }
+
         guard let config = try? SearchConfig.loadParameters(configString: text) else {
             await replay(chatID: "\(chatID)", message: "Wrong Config, Please try again, if you need a help message @dimohamdy")
             await sleepAndRetry()
@@ -113,7 +121,8 @@ class Main {
 
 }
 
-let main =  Main(logger: ProxyLogger(category: "Main"))
+let main =  Main(logger: ProxyLogger(category: "Main"), storageRepository: UserDefaultsLinkStorage())
+
 
 // Start listening for messages within the current RunLoop
 Task {

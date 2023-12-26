@@ -14,10 +14,7 @@ import Foundation
      ],
      "maxRentAmount": "1500",
      "minFloorArea": "100",
-     "availability": "available",
-     "bedrooms": "2",
-     "objectType": "apartment",
-     "publicationSinceDays": "1"
+     "bedrooms": "2"
  }
  */
 
@@ -25,10 +22,10 @@ struct SearchConfig: Decodable {
     let selectedCities: [String]
     let maxRentAmount: String
     let minFloorArea: String
-    let availability: String
     let bedrooms: String
-    let objectType: String
-    let publicationSinceDays: String
+    var availability: String { "available" }
+    var objectType: String { "apartment" }
+    var publicationSinceDays: String { "1" }
 
     static func loadParameters(configString: String) throws -> SearchConfig {
         let data = Data(configString.utf8)

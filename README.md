@@ -19,9 +19,7 @@ Users need to send a message in the following JSON format:
     "price": "1500",
     "floorArea": "100",
     "availability": "available",
-    "bedrooms": "2",
-    "objectType": "apartment",
-    "publicationDate": "1"
+    "bedrooms": "2"
 }
 ```
 
