@@ -27,10 +27,7 @@ Users need to send a message in the following JSON format:
 - `selectedAreas`: List of areas where the user wants to find an apartment.
 - `price`: Maximum rental price in Euros.
 - `floorArea`: Minimum area of the apartment in square meters.
-- `availability`: Current availability status (e.g., "available").
 - `bedrooms`: Number of bedrooms required.
-- `objectType`: Type of rental object (e.g., "apartment").
-- `publicationDate`: Publication date range (in days).
 
 ## Supported Websites
 The bot currently aggregates data from the following websites, with more to be added:
