@@ -13,7 +13,7 @@ import FoundationNetworking
 
 class HuurwoningenStrategy: SearchStrategy {
 
-    var logger: LoggerProtocol = ProxyLogger(category: "Vesteda")
+    var logger: LoggerProtocol = ProxyLogger(category: "Huurwoningen")
 
     func search(fundaTask: FundaTask) async throws {
         let config = fundaTask.searchConfig
