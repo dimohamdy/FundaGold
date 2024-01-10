@@ -48,6 +48,7 @@ class FundaTask {
     }
 
     func run() {
+        // Different time to avoid appear as Bot 🤖
         DispatchQueue.main.asyncAfter(deadline: .now() + Double.random(in: 5.0...10.0) * 60) { [weak self] in
             guard let self else {
                 return
