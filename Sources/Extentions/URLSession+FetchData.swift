@@ -38,7 +38,3 @@ extension URLSession {
         #endif
     }
 }
-
-
-
-
