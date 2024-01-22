@@ -10,10 +10,10 @@ import Foundation
 /* User should send JSON look like this.
  {
      "selectedCities": [
-         "Amsterdam", "Utrecht", "Amersfoort", "Nieuwegein", "Houten" , "Bussum"
+         "Amsterdam", "Utrecht", "Amersfoort", "Nieuwegein", "Houten" , "Bussum", "Hilversum"
      ],
      "maxRentAmount": "1500",
-     "minFloorArea": "100",
+     "minFloorArea": "70",
      "bedrooms": "2"
  }
  */

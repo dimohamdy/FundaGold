@@ -5,6 +5,7 @@ import FoundationNetworking
 
 let botToken = ProcessInfo.processInfo.environment["BOT_TOKEN"] ?? "defaultToken"
 
+
 class Main {
 
     private var searchTasks: [Int: FundaTask] = [:]
@@ -33,15 +34,6 @@ class Main {
         }
     }
 
-    private func replay(chatID: String, message: String) async {
-        // Handle the incoming message and generate a response
-        do {
-            try await notifier.notifyUser(chatID: chatID, message: message)
-        } catch {
-            logger.log(error.localizedDescription, level: .error)
-        }
-    }
-
     func pollMessagesFromTelegram() async {
         do {
             guard let url = createURL() else { return }
@@ -61,7 +53,16 @@ class Main {
         }
     }
 
-    func createURL() -> URL? {
+    private func replay(chatID: String, message: String) async {
+        // Handle the incoming message and generate a response
+        do {
+            try await notifier.notifyUser(chatID: chatID, message: message)
+        } catch {
+            logger.log(error.localizedDescription, level: .error)
+        }
+    }
+
+    private func createURL() -> URL? {
         guard var urlComponents = URLComponents(string: apiUrl) else {
             logger.log("Invalid API URL", level: .error)
             return nil
@@ -74,26 +75,27 @@ class Main {
         return urlComponents.url
     }
 
-    func fetchData(url: URL) async throws -> (Data, URLResponse) {
+    private func fetchData(url: URL) async throws -> (Data, URLResponse) {
         let request = URLRequest(url: url)
-        return try await URLSession.shared.data(with: request)
+        let session = URLSession(configuration: URLSessionConfiguration.default)
+        return try await session.data(with: request)
     }
 
-    func parseMessages(from data: Data) throws -> [TelegramMessage] {
+    private func parseMessages(from data: Data) throws -> [TelegramMessage] {
         let str = String(decoding: data, as: UTF8.self)
-        logger.log("JSON \(str)", level: .debug)
+        logger.log("JSON \(str)", level: .info)
 
         let decoder = JSONDecoder()
         let response = try decoder.decode(TelegramResponse<[TelegramMessage]>.self, from: data)
         return response.ok ? response.result ?? [] : []
     }
 
-    func handleMessage(_ message: TelegramMessage) async throws {
+    private func handleMessage(_ message: TelegramMessage) async throws {
         guard let chatID = message.message?.chat.id, let text = message.message?.text else { return }
         let updateID = message.update_id
         lastUpdateID = updateID
 
-        if text.lowercased() == "clear"  {
+        if Actions(rawValue: text.lowercased()) == .clear  {
             storageRepository.clearData(forChatID: "\(chatID)")
             searchTasks[chatID]?.clearPropertyLinks()
             await replay(chatID: "\(chatID)", message: "Clear Done ✅")
@@ -114,7 +116,7 @@ class Main {
         await sleepAndRetry()
     }
 
-    func sleepAndRetry() async {
+    private func sleepAndRetry() async {
         try? await Task.sleep(nanoseconds: 2_000_000_000) // Sleep for 2 second
         await pollMessagesFromTelegram()
     }

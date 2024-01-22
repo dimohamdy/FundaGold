@@ -35,7 +35,7 @@ struct TelegramMessage: Decodable {
 }
 
 struct TelegramMessageInfo: Decodable {
-    let message_id: Int // This is the correct field name for message ID
+    let message_id: Int
     let chat: TelegramChat
     let text: String
 }

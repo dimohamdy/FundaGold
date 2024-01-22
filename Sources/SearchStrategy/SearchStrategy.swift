@@ -45,7 +45,8 @@ extension SearchStrategy {
         var request = URLRequest(url: url)
         request.setValue(getRandomUserAgent(), forHTTPHeaderField: "User-Agent")
         // Perform the URL request
-        let (data, _) = try await URLSession.shared.data(with: request)
+        let session = URLSession(configuration: URLSessionConfiguration.default)
+        let (data, _) = try await session.data(with: request)
 
         guard let htmlString = String(data: data, encoding: .utf8) else {
             throw FundaGoldError.invalidURL

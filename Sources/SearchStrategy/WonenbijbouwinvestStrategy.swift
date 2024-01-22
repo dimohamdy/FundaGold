@@ -69,7 +69,8 @@ struct WonenbijbouwinvestStrategy: SearchStrategy {
                 request.setValue(getRandomUserAgent(), forHTTPHeaderField: "User-Agent")
 
                 // Perform the HTTP GET request using async/await
-                let (data, _) = try await URLSession.shared.data(with: request)
+                let session = URLSession(configuration: URLSessionConfiguration.default)
+                let (data, _) = try await session.data(with: request)
 
                 // Parse the JSON data into a Property array
                 let responseData = try JSONDecoder().decode(ResponseData.self, from: data)

@@ -14,8 +14,8 @@ let searchStrategies: [SearchStrategy] = [FundaSearchStrategy(),
                                           ParariusSearchStrategy(),
                                           WonenbijbouwinvestStrategy(),
                                           VestedaStrategy(),
-                                          IkwilhurenStrategy(),
-                                          HuurwoningenStrategy()]
+                                          HuurwoningenStrategy(),
+                                          IkwilhurenStrategy()]
 
 class FundaTask {
     // User can change the search config

@@ -62,7 +62,8 @@ class VestedaStrategy: SearchStrategy {
         do {
 
             // Send the request and wait for the response
-            let (data, _) = try await URLSession.shared.data(with: request)
+            let session = URLSession(configuration: URLSessionConfiguration.default)
+            let (data, _) = try await session.data(with: request)
 
             // Parse the JSON response using Codable
             let decoder = JSONDecoder()

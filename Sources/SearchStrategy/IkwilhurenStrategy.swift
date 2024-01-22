@@ -29,8 +29,8 @@ class IkwilhurenStrategy: SearchStrategy {
     func sendInitialRequest() async throws {
         let url = URL(string: "https://ikwilhuren.nu/aanbod")!
         let request = URLRequest(url: url)
-
-        let (data, _) = try await URLSession.shared.data(with: request)
+        let session = URLSession(configuration: URLSessionConfiguration.default)
+        let (data, _) = try await session.data(with: request)
 
         if let cookies = URLSession.shared.configuration.httpCookieStorage?.cookies(for: url) {
             self.cookies = cookies
@@ -67,14 +67,8 @@ class IkwilhurenStrategy: SearchStrategy {
 
     @Sendable func run(city: City, fundaTask: FundaTask) async throws {
         let config = fundaTask.searchConfig
-        let configuration = URLSessionConfiguration.default
 
-        // Customize your configuration
-        configuration.timeoutIntervalForRequest = 30.0 // Set request timeout interval
-        configuration.timeoutIntervalForResource = 60.0 // Set resource timeout interval
-        configuration.httpAdditionalHeaders = ["Content-Type": "application/json"] // Set custom HTTP headers
-        // Add other configurations as needed
-        let session = URLSession(configuration: configuration)
+        let session = URLSession(configuration: URLSessionConfiguration.default)
 
         // Define the URL and the form data
         let url = URL(string: "https://ikwilhuren.nu/aanbod/") // Replace with the actual URL
@@ -104,19 +98,19 @@ class IkwilhurenStrategy: SearchStrategy {
 
         // 302 Found
         // Crash in EasyHandle.set(preferredReceiveBufferSize:) + 200 in libFoundationNetworking.so
-        // let (_, response) = try await URLSession.shared.data(with: request)
+         let (_, response) = try await session.data(with: request)
 
         // Define an asynchronous function to send the POST request
-        let response = try await withCheckedThrowingContinuation { continuation in
-            session.dataTask(with: request) { data, response, error in
-                if let response = response {
-                    continuation.resume(returning: response)
-                } else if let error = error { // Fix: add "= error" here
-                    continuation.resume(throwing: FundaGoldError.requestFailed)
-
-                }
-            }.resume()
-        }
+//        let response = try await withCheckedThrowingContinuation { continuation in
+//            session.dataTask(with: request) { data, response, error in
+//                if let response = response {
+//                    continuation.resume(returning: response)
+//                } else if let error = error {
+//                    continuation.resume(throwing: FundaGoldError.requestFailed)
+//
+//                }
+//            }.resume()
+//        }
 
         // Handle the response and errors here
         guard let httpResponse = response as? HTTPURLResponse, (200..<302).contains(httpResponse.statusCode) else {
