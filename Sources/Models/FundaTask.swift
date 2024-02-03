@@ -48,27 +48,19 @@ class FundaTask {
     }
 
     func run() {
-        // Different time to avoid appear as Bot 🤖
-        DispatchQueue.main.asyncAfter(deadline: .now() + Double.random(in: 5.0...10.0) * 60) { [weak self] in
-            guard let self else {
-                return
-            }
-            let date = String(DateFormatter.localizedString(from: Date(), dateStyle: .medium, timeStyle: .short))
-            print("⏰ \(date) _ 💬 \(self.chatID))")
-            searchStrategies.forEach { strategy in
+        Task {
+            for strategy in searchStrategies {
+                let date = String(DateFormatter.localizedString(from: Date(), dateStyle: .medium, timeStyle: .short))
+                print("⏰ \(date) _ 💬 \(self.chatID))")
+                do {
 
-                Task {
+                    // Execute the search using the selected strategy
+                    try await strategy.search(fundaTask: self)
 
-                    do {
-
-                        // Execute the search using the selected strategy
-                        try await strategy.search(fundaTask: self)
-
-                    } catch {
-                        self.logger.log("Error during search: \(error)", level: .error)
-                    }
-
+                } catch {
+                    self.logger.log("Error during search: \(error)", level: .error)
                 }
+
             }
         }
     }

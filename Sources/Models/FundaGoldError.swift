@@ -1,5 +1,5 @@
 //
-//  MyError.swift
+//  FundaGoldError.swift
 //  FundaGold
 //
 //  Created by Dimo Abdelaziz on 03/10/2023.

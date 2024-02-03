@@ -18,7 +18,7 @@ class HuurwoningenStrategy: SearchStrategy {
     func search(fundaTask: FundaTask) async throws {
         let config = fundaTask.searchConfig
 
-       // "https://www.huurwoningen.nl/in/hilversum/? =0-1300&living_size=75&bedrooms=1"
+       // "https://www.huurwoningen.nl/in/hilversum/?=0-1300&living_size=75&bedrooms=1"
 
         var linksForCities: [URL] = []
         config.selectedCities.forEach { area in

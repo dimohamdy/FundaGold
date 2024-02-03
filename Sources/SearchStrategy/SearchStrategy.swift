@@ -11,7 +11,7 @@ import SwiftSoup
 import FoundationNetworking
 #endif
 
-let telegram = TelegramNotifier()
+let telegram = Telegram()
 
 protocol SearchStrategy {
     var logger: LoggerProtocol { get set }

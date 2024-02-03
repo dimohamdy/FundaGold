@@ -17,7 +17,6 @@ import Foundation
                     if let data = data, let response = response {
                         continuation.resume(returning: (data, response))
                     } else if let error = error {
-                        // Resume with non-optional error
                         continuation.resume(throwing: error)
                     } else {
                         continuation.resume(throwing: FundaGoldError.requestFailed)
