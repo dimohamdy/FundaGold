@@ -1,4 +1,4 @@
-name: Deploy to Amazon ECS with ECR Public
+name: Run Terraform AWS
 
 on:
   push:
