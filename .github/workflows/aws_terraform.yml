@@ -1,4 +1,4 @@
-name: Deploy to Amazon ECS with ECR Public
+name: Run Terraform AWS
 
 on:
   push:
@@ -69,4 +69,4 @@ jobs:
         env:
           TF_VAR_aws_access_key_id: ${{ env.AWS_ACCESS_KEY_ID }}
           TF_VAR_aws_secret_access_key: ${{ env.AWS_SECRET_ACCESS_KEY }}
-          TF_VAR_image_uri: ${{ IMAGE_URI }}
+          TF_VAR_image_uri: ${{ steps.build-and-push.outputs.image_uri }}
