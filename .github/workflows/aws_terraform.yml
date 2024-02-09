@@ -7,6 +7,7 @@ on:
 env:
   # verbosity setting for Terraform logs
   TF_LOG: INFO
+  AWS_REGION: eu-central-1                    # set this to your preferred AWS region, e.g. us-west-1
   # Credentials for deployment to AWS
   AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
   AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
@@ -23,6 +24,24 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
+      
+      # Default AWS credentials configuration for eu-central-1 region
+      - name: Configure AWS credentials for eu-central-1
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ env.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ env.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      # Login to Amazon ECR Public (does not require region specification)
+      - name: Login to Amazon ECR Public
+        id: login-ecr-public
+        uses: aws-actions/amazon-ecr-login@v2
+        with:
+          registry-type: public
+        env:
+          AWS_REGION: 'us-east-1'           # Unsetting AWS_REGION for this step
+          AWS_DEFAULT_REGION: 'us-east-1'   # Unsetting AWS_DEFAULT_REGION for this step
 
       # Build, tag, and push docker image to Amazon ECR Public
       - name: Build, tag, and push docker image to Amazon ECR Public
@@ -48,6 +67,6 @@ jobs:
       - name: Terraform Apply
         run: terraform apply -auto-approve
         env:
-          TF_VAR_aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          TF_VAR_aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          TF_VAR_aws_access_key_id: ${{ env.AWS_ACCESS_KEY_ID }}
+          TF_VAR_aws_secret_access_key: ${{ env.AWS_SECRET_ACCESS_KEY }}
           TF_VAR_image_uri: ${{ IMAGE_URI }}
