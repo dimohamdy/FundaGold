@@ -1,7 +1,10 @@
-
 variable "aws_access_key_id" {}
 variable "aws_secret_access_key" {}
 variable "image_uri" {}
+
+variable "availability_zones" {
+  default = ["eu-central-1a", "eu-central-1b"]
+}
 
 provider "aws" {
   region     = "eu-central-1"
@@ -11,17 +14,17 @@ provider "aws" {
 
 # Create a VPC
 resource "aws_vpc" "funda_vpc" {
-  cidr_block = "10.0.0.0/16"
-  enable_dns_support = true
+  cidr_block          = "10.0.0.0/16"
+  enable_dns_support  = true
   enable_dns_hostnames = true
 }
 
-# Create public and private subnets
+# Create public and private subnets in eu-central-1a and eu-central-1b
 resource "aws_subnet" "public_subnet" {
   count                   = 2
   vpc_id                  = aws_vpc.funda_vpc.id
   cidr_block              = element(["10.0.1.0/24", "10.0.2.0/24"], count.index)
-  availability_zone       = element(data.aws_availability_zones.available.names, count.index)
+  availability_zone       = element(var.availability_zones, count.index)
   map_public_ip_on_launch = true
 }
 
@@ -29,7 +32,7 @@ resource "aws_subnet" "private_subnet" {
   count                   = 2
   vpc_id                  = aws_vpc.funda_vpc.id
   cidr_block              = element(["10.0.3.0/24", "10.0.4.0/24"], count.index)
-  availability_zone       = element(data.aws_availability_zones.available.names, count.index)
+  availability_zone       = element(var.availability_zones, count.index)
 }
 
 # Create an internet gateway for the public subnet
@@ -81,10 +84,10 @@ resource "aws_iam_role" "ecs_task_execution_role" {
   name = "ecs-task-execution-role"
 
   assume_role_policy = jsonencode({
-    Version = "2012-10-17",
+    Version   = "2012-10-17",
     Statement = [{
-      Action = "sts:AssumeRole",
-      Effect = "Allow",
+      Action    = "sts:AssumeRole",
+      Effect    = "Allow",
       Principal = {
         Service = "ecs-tasks.amazonaws.com"
       }
@@ -107,31 +110,29 @@ resource "aws_ecs_task_definition" "funda_task_definition" {
   memory                   = "512"
   execution_role_arn       = aws_iam_role.ecs_task_execution_role.arn
 
-  container_definitions = <<DEFINITION
-[
-  {
-    "name": "FundaGold-Container-Public",
-    "image": var.image_uri,
-    "cpu": 256,
-    "memory": 512,
-    "essential": true,
-    "portMappings": [
-      {
-        "containerPort": 80,
-        "hostPort": 80
-      }
-    ],
-    "logConfiguration": {
-      "logDriver": "awslogs",
-      "options": {
-        "awslogs-group": "/ecs/FundaGold-TaskDefinition-Public",
-        "awslogs-region": "eu-central-1",
-        "awslogs-stream-prefix": "ecs"
+  container_definitions = jsonencode([
+    {
+      "name": "FundaGold-Container-Public",
+      "image": var.image_uri,
+      "cpu": 256,
+      "memory": 512,
+      "essential": true,
+      "portMappings": [
+        {
+          "containerPort": 80,
+          "hostPort": 80
+        }
+      ],
+      "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+          "awslogs-group": "/ecs/FundaGold-TaskDefinition-Public",
+          "awslogs-region": "eu-central-1",
+          "awslogs-stream-prefix": "ecs"
+        }
       }
     }
-  }
-]
-DEFINITION
+  ])
 }
 
 # Create an ECS service to run tasks
@@ -143,7 +144,7 @@ resource "aws_ecs_service" "funda_ecs_service" {
   desired_count   = 1
 
   network_configuration {
-    subnets = [aws_subnet.public_subnet[0].id]
+    subnets         = [aws_subnet.public_subnet[0].id]
     security_groups = [aws_security_group.ecs_task_sg.id]
   }
 }
