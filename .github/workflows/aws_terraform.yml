@@ -3,6 +3,8 @@ name: Run Terraform AWS
 on:
   push:
     branches: [ "master", "main" ]
+    paths:
+      - '**.tf' # Trigger only when there's a change in Terraform files
 
 env:
   # verbosity setting for Terraform logs
@@ -64,8 +66,13 @@ jobs:
       - name: Terraform Init
         run: terraform init
 
+      - name: Terraform Plan
+        id: tf-plan
+        run: terraform plan -out=tfplan -input=false
+
       - name: Terraform Apply
-        run: terraform apply -auto-approve
+        if: ${{ steps.tf-plan.outputs.exit-code == 2 }}  # Apply only if there are changes
+        run: terraform apply -auto-approve tfplan
         env:
           TF_VAR_aws_access_key_id: ${{ env.AWS_ACCESS_KEY_ID }}
           TF_VAR_aws_secret_access_key: ${{ env.AWS_SECRET_ACCESS_KEY }}
