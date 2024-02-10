@@ -3,7 +3,7 @@
 <img src="https://blog.funda.nl/content/images/2021/04/logo.svg" alt="Alternative Text" width="300" height="200"/>
 
 [![Publish Docker Image](https://github.com/dimohamdy/FundaGold/actions/workflows/docker-publish.yml/badge.svg)](https://github.com/dimohamdy/FundaGold/actions/workflows/docker-publish.yml)
-[![Deploy to Amazon ECS](https://github.com/dimohamdy/FundaGold/actions/workflows/aws.yml/badge.svg)](https://github.com/dimohamdy/FundaGold/actions/workflows/aws.yml)
+[![Run Terraform AWS](https://github.com/dimohamdy/FundaGold/actions/workflows/aws_terraform.yml/badge.svg)](https://github.com/dimohamdy/FundaGold/actions/workflows/aws_terraform.yml)
 
 ## Overview
 The @FundaGold bot is a specialized Telegram bot designed to assist users in finding rental apartments across various websites. By sending a JSON-formatted message to the bot, users can specify their preferences for a rental apartment, and the bot will aggregate options from multiple supported websites.
