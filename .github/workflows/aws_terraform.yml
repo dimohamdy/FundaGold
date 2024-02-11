@@ -3,8 +3,6 @@ name: Run Terraform AWS
 on:
   push:
     branches: [ "master", "main" ]
-    paths:
-      - '**.tf' # Trigger only when there's a change in Terraform files
 
 env:
   # verbosity setting for Terraform logs
