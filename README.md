@@ -44,8 +44,14 @@ The bot currently aggregates data from the following websites, with more to be a
 2. Send your apartment preferences in the JSON format provided above.
 3. The bot will process your request and return a list of available apartments matching your criteria from the supported websites.
 
-## Future Updates
-We are continually working to include more websites and improve the bot's functionality. Stay tuned for future updates and additional features!
+## TODO:
+- [x] Deploy bot on AWS for 24/7 availability.
+- [x] Setup AWS infrastructure using Terraform.
+- [ ] Write integration tests and monitor code coverage.
+- [ ] Implement NLP-based search.
+- [ ] Handle errors and edge cases gracefully.
+- [ ] Enhance user experience with interactive responses.
+- [ ] Add support for additional languages.
 
 ---
 
