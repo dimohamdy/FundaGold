@@ -44,6 +44,18 @@ The bot currently aggregates data from the following websites, with more to be a
 2. Send your apartment preferences in the JSON format provided above.
 3. The bot will process your request and return a list of available apartments matching your criteria from the supported websites.
 
+## Setup your Bot
+1. **Create Your Bot:** Start a chat with BotFather on Telegram, use `/newbot` to create your bot, and get the `bot_token`.
+
+   [Tutorial Video](https://www.youtube.com/watch?v=UQrcOj63S2o&ab_channel=CodeAlongwithRo)
+
+2. **Clone the Repository:** Clone your bot's repository and navigate to the directory.
+
+3. Run these commands in the directory of the repository. replace `your_bot_token` with the value from **Step 1**
+    ```
+    docker build -t fundagold_image .
+    docker run -e BOT_TOKEN=your_bot_token --name fundagold_container fundagold_image
+    ```
 ## TODO:
 - [x] Deploy bot on AWS for 24/7 availability.
 - [x] Setup AWS infrastructure using Terraform.
