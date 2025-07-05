@@ -14,20 +14,25 @@ let botToken = ProcessInfo.processInfo.environment["BOT_TOKEN"] ?? "defaultToken
 
 class Telegram: Notifier {
 
-
-    // Define the Telegram API endpoint for long polling updates
-    private let apiUrl = "https://api.telegram.org/bot\(botToken)/getUpdates"
+    // Make the API base URL customizable
+    private let apiBaseUrl: String
     private var lastUpdateID: Int?
 
     let logger: LoggerProtocol
     let executor: Executor
-    init(logger: LoggerProtocol = ProxyLogger(category: "Telegram")) {
+    init(logger: LoggerProtocol = ProxyLogger(category: "Telegram"), apiBaseUrl: String = "https://api.telegram.org") {
         self.logger = logger
+        self.apiBaseUrl = apiBaseUrl
         logger.log("BOT_TOKEN \(ProcessInfo.processInfo.environment["BOT_TOKEN"])", level: .debug)
-        logger.log("apiUrl \(apiUrl)", level: .debug)
+        logger.log("apiBaseUrl \(apiBaseUrl)", level: .debug)
         self.executor = Executor(logger:  ProxyLogger(category: "Executor"),
                                  storageRepository: UserDefaultsLinkStorage())
         self.executor.telegram = self
+    }
+
+    // Define the Telegram API endpoint for long polling updates
+    private var apiUrl: String {
+        return "\(apiBaseUrl)/bot\(botToken)/getUpdates"
     }
 
     func pollMessages() async throws {
@@ -119,7 +124,7 @@ class Telegram: Notifier {
 
     // Send message function
     func notifyUser(chatID: String, message: String) async throws {
-        let baseURL = "https://api.telegram.org/bot\(botToken)/sendMessage"
+        let baseURL = "\(apiBaseUrl)/bot\(botToken)/sendMessage"
 
         // Construct the URL
         guard var urlComponents = URLComponents(string: baseURL) else {
