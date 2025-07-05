@@ -14,7 +14,7 @@ struct TelegramResponse<T: Decodable>: Decodable {
 }
 
 struct TelegramMessage: Decodable {
-    let update_id: Int
+    let updateId: Int
     let message: TelegramMessageInfo?
 
     enum CodingKeys: String, CodingKey {
@@ -25,7 +25,7 @@ struct TelegramMessage: Decodable {
 
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
-        update_id = try container.decode(Int.self, forKey: .updateId)
+        updateId = try container.decode(Int.self, forKey: .updateId)
         if container.contains(.message) {
             message = try container.decode(TelegramMessageInfo.self, forKey: .message)
         } else {
@@ -35,9 +35,15 @@ struct TelegramMessage: Decodable {
 }
 
 struct TelegramMessageInfo: Decodable {
-    let message_id: Int
+    let messageId: Int
     let chat: TelegramChat
     let text: String
+
+    enum CodingKeys: String, CodingKey {
+        case messageId = "message_id"
+        case chat
+        case text
+    }
 }
 
 struct TelegramChat: Decodable {
