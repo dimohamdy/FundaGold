@@ -14,6 +14,10 @@ import FoundationNetworking
 struct ParariusSearchStrategy: SearchStrategy {
 
     var logger: LoggerProtocol = ProxyLogger(category: "Pararius")
+    let baseUrl: String
+    init(baseUrl: String = "https://www.pararius.nl") {
+        self.baseUrl = baseUrl
+    }
 
     // https://www.pararius.nl/huurwoningen/almere/1100-1500/2-slaapkamers/75m2
 
@@ -23,7 +27,7 @@ struct ParariusSearchStrategy: SearchStrategy {
         var linksForCities: [URL] = []
         config.selectedCities.forEach { area in
             // Construct the URL with query parameters
-            let baseURL = "https://www.pararius.nl/huurwoningen"
+            let baseURL = "\(baseUrl)/huurwoningen"
             // Query parameters
             let priceRange = "0-\(config.maxRentAmount)"
             let bedrooms = "\(config.bedrooms)-slaapkamers"
@@ -53,7 +57,7 @@ struct ParariusSearchStrategy: SearchStrategy {
                 let links = try doc.select("h2.listing-search-item__title a.listing-search-item__link--title")
 
                 links.compactMap { try? $0.attr("href") }
-                     .map { "https://www.pararius.nl\($0)" }
+                     .map { "\(baseUrl)\($0)" }
                      .forEach { propertyURLs.append($0) }
 
                 await sendLinks(fundaTask: fundaTask, propertyURLs: propertyURLs)
