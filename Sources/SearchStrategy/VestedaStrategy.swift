@@ -13,6 +13,10 @@ import FoundationNetworking
 class VestedaStrategy: SearchStrategy {
 
     var logger: LoggerProtocol = ProxyLogger(category: "Vesteda")
+    let baseUrl: String
+    init(baseUrl: String = "https://www.vesteda.com") {
+        self.baseUrl = baseUrl
+    }
 
     struct Property: Codable {
         let id: Int
@@ -51,8 +55,7 @@ class VestedaStrategy: SearchStrategy {
 
         let jsonData = try? JSONSerialization.data(withJSONObject: httpBody)
         // Create the URL and request
-        let apiUrl = URL(string: "https://www.vesteda.com/api/units/search/facet")!
-        //https://www.vesteda.com/api/units/search/facet
+        let apiUrl = URL(string: "\(baseUrl)/api/units/search/facet")!
         var request = URLRequest(url: apiUrl)
         request.httpMethod = "POST"
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
@@ -75,7 +78,7 @@ class VestedaStrategy: SearchStrategy {
 
             // Process the properties
             for property in properties where property.status == 1 {
-                propertyURLs.append("https://www.vesteda.com\(property.url)")
+                propertyURLs.append("\(baseUrl)\(property.url)")
             }
 
             await sendLinks(fundaTask: fundaTask, propertyURLs: propertyURLs)
