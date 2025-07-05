@@ -14,6 +14,10 @@ import FoundationNetworking
 struct WonenbijbouwinvestStrategy: SearchStrategy {
 
     var logger: LoggerProtocol = ProxyLogger(category: "Wonenbijbouwinvest")
+    let baseUrl: String
+    init(baseUrl: String = "https://www.wonenbijbouwinvest.nl") {
+        self.baseUrl = baseUrl
+    }
 
     struct Property: Codable {
         // Define the structure of your JSON data
@@ -35,7 +39,7 @@ struct WonenbijbouwinvestStrategy: SearchStrategy {
         var linksForCities: [URL] = []
         config.selectedCities.forEach { area in
 
-            var urlComponents = URLComponents(string: "https://www.wonenbijbouwinvest.nl/api/search")!
+            var urlComponents = URLComponents(string: "\(baseUrl)/api/search")!
             urlComponents.queryItems = [
                 URLQueryItem(name: "query", value: area),
                 URLQueryItem(name: "price", value: "0-\(config.maxRentAmount)"),
