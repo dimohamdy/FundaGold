@@ -14,12 +14,16 @@ import FoundationNetworking
 struct FundaSearchStrategy: SearchStrategy {
 
     var logger: LoggerProtocol = ProxyLogger(category: "Funda")
+    let baseUrl: String
+    init(baseUrl: String = "https://www.funda.nl") {
+        self.baseUrl = baseUrl
+    }
 
     func search(fundaTask: FundaTask) async throws {
         let config = fundaTask.searchConfig
 
         // Construct the URL with query parameters
-        var urlComponents = URLComponents(string: "https://www.funda.nl/zoeken/huur")!
+        var urlComponents = URLComponents(string: "\(baseUrl)/zoeken/huur")!
         urlComponents.queryItems = [
             URLQueryItem(name: "selected_area", value: config.selectedCities.map { "\"\($0.lowercased())\"" }.joined(separator: ",")),
             URLQueryItem(name: "price", value: "\"-\(config.maxRentAmount)\""),
@@ -64,7 +68,7 @@ struct FundaSearchStrategy: SearchStrategy {
         }
 
         let propertyURLs = itemListElement.compactMap { item -> String? in
-            guard let url = item["url"] as? String, url.hasPrefix("https://www.funda.nl/huur/") else {
+            guard let url = item["url"] as? String, url.hasPrefix("\(baseUrl)/huur/") else {
                 return nil
             }
             return url
