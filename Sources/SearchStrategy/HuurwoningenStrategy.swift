@@ -14,6 +14,10 @@ import FoundationNetworking
 class HuurwoningenStrategy: SearchStrategy {
 
     var logger: LoggerProtocol = ProxyLogger(category: "Huurwoningen")
+    let baseUrl: String
+    init(baseUrl: String = "https://www.huurwoningen.nl") {
+        self.baseUrl = baseUrl
+    }
 
     func search(fundaTask: FundaTask) async throws {
         let config = fundaTask.searchConfig
@@ -23,7 +27,7 @@ class HuurwoningenStrategy: SearchStrategy {
         var linksForCities: [URL] = []
         config.selectedCities.forEach { area in
 
-            var urlComponents = URLComponents(string: "https://www.huurwoningen.nl/in/\(area)")!
+            var urlComponents = URLComponents(string: "\(baseUrl)/in/\(area)")!
             urlComponents.queryItems = [
                 URLQueryItem(name: "price", value: "0-\(config.maxRentAmount)"),
                 URLQueryItem(name: "bedrooms", value: "\(config.bedrooms)"),
@@ -50,7 +54,7 @@ class HuurwoningenStrategy: SearchStrategy {
                 let links = try doc.select("a.listing-search-item__link listing-search-item__link--title")
                 var propertyURLs: [String] = []
 
-                links.map { "https://www.huurwoningen.nl\($0)" }
+                links.map { "\(baseUrl)\($0)" }
                      .forEach { propertyURLs.append($0) }
 
                 await sendLinks(fundaTask: fundaTask, propertyURLs: propertyURLs)
