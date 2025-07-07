@@ -1,5 +1,5 @@
 # Start from the official Swift image
-FROM swift:latest
+FROM swift:5.9
 
 # Declare BOT_TOKEN as a build argument
 ARG BOT_TOKEN
