@@ -25,9 +25,15 @@ class IkwilhurenStrategy: SearchStrategy {
     var csrf: String = ""
     var cookies: [HTTPCookie] = []
 
+    // Make the base URL customizable
+    let baseUrl: String
+    init(baseUrl: String = "https://ikwilhuren.nu") {
+        self.baseUrl = baseUrl
+    }
+
     // Define a function to send the initial request and retrieve cookies
     func sendInitialRequest() async throws {
-        let url = URL(string: "https://ikwilhuren.nu/aanbod")!
+        let url = URL(string: "\(baseUrl)/aanbod")!
         let request = URLRequest(url: url)
         let session = URLSession(configuration: URLSessionConfiguration.default)
         let (data, _) = try await session.data(with: request)
@@ -71,7 +77,7 @@ class IkwilhurenStrategy: SearchStrategy {
         let session = URLSession(configuration: URLSessionConfiguration.default)
 
         // Define the URL and the form data
-        let url = URL(string: "https://ikwilhuren.nu/aanbod/") // Replace with the actual URL
+        let url = URL(string: "\(baseUrl)/aanbod/")
         var request = URLRequest(url: url!)
         request.httpMethod = "POST"
 
@@ -127,7 +133,7 @@ class IkwilhurenStrategy: SearchStrategy {
 
         // Iterate through the selected elements and extract the href attribute values
         links.compactMap { try? $0.attr("href") }
-            .map { "https://ikwilhuren.nu\($0)" }
+            .map { "\(baseUrl)\($0)" }
             .forEach {
                 propertyURLs.append($0)
             }
